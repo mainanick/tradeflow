@@ -17,11 +17,13 @@ class Trade extends Component {
       year: 2016,
       origin: "ken",
       destination: "all",
-      product: "show"
+      product: "show",
+      loading: true
     }
 
     this.changeTradeYear = this.changeTradeYear.bind(this);
-    this.fetchData =this.fetchData.bind(this);
+    this.fetchData = this.fetchData.bind(this);
+    this.loadingOrFailMessage = this.loadingOrFailMessage.bind(this);
   }
   
   componentDidMount(){
@@ -34,6 +36,10 @@ class Trade extends Component {
     }
   }
   
+  loadingOrFailMessage(){
+    return this.state.loading? "Fetching data" : "Oh Noes! Check your Network or try again after sometime"
+  }
+  
   getTradeURL(){
     // TRADE_FLOW / YEAR / ORIGIN / DESTINATION / PRODUCT /
     const { tradeFlow, year, origin, destination, product } = this.state;
@@ -43,8 +49,14 @@ class Trade extends Component {
   fetchData(){
     const URL = this.getTradeURL();
     fetch(URL)
-    .then(res=>res.json())
-    .then(res=>this.setState({results: res.data}));
+    .then(res=> {
+      if(!res.ok){
+        this.setState({results: [], loading:false});
+      }
+      return res.json()
+    })
+    .then(res=>this.setState({results: res.data, loading:false}))
+    .catch(err=>this.setState({results: [], loading:false}));
   }
   
   changeTradeYear(ev){
@@ -56,11 +68,11 @@ class Trade extends Component {
   }
   
   render() {
-    const allowedYears = [2012,2013, 2014, 2015, 2016];
+    const allowedYears = [2012, 2013, 2014, 2015, 2016];
     const columns = [{
       Header: 'Product',
-      accessor: 'hs92_id',
-      Cell: row => <a> {this.getProductName(row.value)} </a>
+      accessor: 'name',
+      Cell: row => <a> {row.value} </a>
     },{
       Header: 'Import Value',
       accessor: 'import_val',
@@ -70,10 +82,6 @@ class Trade extends Component {
       accessor: 'export_val',
       Cell: row => <a>{formatCurrency(row.value)} </a>
     }]
-  
-    if (!this.state.results){
-      return <h3>Fetching data...</h3>;
-    }
     
     return (
       <div>
@@ -82,9 +90,18 @@ class Trade extends Component {
         </select>
     
         <ReactTable
-          data={this.state.results}
-          defaultPageSize={20}
+          className="-striped -highlight"
           columns={columns}
+          data={this.state.results}
+          noDataText={this.loadingOrFailMessage()}
+          defaultPageSize={20}
+          defaultSorted={[
+            { id: "import_val", desc: true }
+          ]}
+          resolveData={data => data.map(row => {
+            return {name: this.getProductName(row.hs92_id),...row}
+            }
+          )}
           getTdProps={(state, rowInfo, column, instance) => {
             return {
               onClick: () => {
@@ -92,6 +109,10 @@ class Trade extends Component {
               }
             };
           }}
+          loading={this.state.loading}
+          filterable
+          showPaginationTop
+          showPaginationBottom
         />
     </div>
     );
