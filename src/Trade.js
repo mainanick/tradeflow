@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import ReactTable from 'react-table';
 import 'react-table/react-table.css';
 
-import HS92 from './HS92';
+import HS07 from './HS07';
 
 function formatCurrency(amount){
   return amount? amount.toLocaleString('en-US', { style: 'currency', currency: 'USD' }) : undefined
@@ -43,7 +43,7 @@ class Trade extends Component {
   getTradeURL(){
     // TRADE_FLOW / YEAR / ORIGIN / DESTINATION / PRODUCT /
     const { tradeFlow, year, origin, destination, product } = this.state;
-    return `https://atlas.media.mit.edu/hs92/${tradeFlow}/${year}/${origin}/${destination}/${product}/`
+    return `https://atlas.media.mit.edu/hs07/${tradeFlow}/${year}/${origin}/${destination}/${product}/`
   }
   
   fetchData(){
@@ -64,7 +64,7 @@ class Trade extends Component {
   }
   
   getProductName(id){
-    return HS92[id.toLocaleString()].name
+    return HS07[id.toLocaleString()].name
   }
   
   render() {
@@ -99,13 +99,13 @@ class Trade extends Component {
             { id: "import_val", desc: true }
           ]}
           resolveData={data => data.map(row => {
-            return {name: this.getProductName(row.hs92_id),...row}
+            return {name: this.getProductName(row.hs07_id),...row}
             }
           )}
           getTdProps={(state, rowInfo, column, instance) => {
             return {
               onClick: () => {
-                console.log("Row Clicked:", rowInfo.original.hs92_id);
+                console.log("Row Clicked:", rowInfo.original.hs07_id);
               }
             };
           }}
