@@ -72,7 +72,8 @@ class Trade extends Component {
     const columns = [{
       Header: 'Product',
       accessor: 'name',
-      Cell: row => <a> {row.value} </a>
+      Cell: (row) => <a> {row.value} </a>,
+      filterMethod: (filter, row) => row[filter.id].includes(filter.value) 
     },{
       Header: 'Import Value',
       accessor: 'import_val',
