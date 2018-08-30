@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import ReactTable from 'react-table';
 import 'react-table/react-table.css';
-import FlagKenya from './FlagKenya';
 
+import FlagKenya from './FlagKenya';
 import HS07 from './HS07';
 
 function formatCurrency(amount){
